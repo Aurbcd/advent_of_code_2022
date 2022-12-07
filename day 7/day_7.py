@@ -7,6 +7,7 @@ class folder:
         self.name = name
         self.subfolders = []
         self.files = []
+        self.size = 0
         self.previous_folder = None
     def add_subfolder(self, subfolder):
         if subfolder not in self.subfolders:
@@ -28,6 +29,13 @@ class folder:
         return self.files
     def get_name(self):
         return self.name
+
+    def get_all_subfolders_size(self):
+        subfolders_size = []
+        for subfolder in self.subfolders:
+            subfolders_size.append(subfolder.size)
+            subfolders_size += subfolder.get_all_subfolders_size()
+        return subfolders_size
     def get_objective_part1(self, threshold_folder_size=0):
         total_size = 0
         for file in self.files:
@@ -39,25 +47,13 @@ class folder:
             total_size += folder_size
         return total_size, threshold_folder_size
 
-    def get_objective_part2(self, threshold, lowest_folder_size=math.inf):
-        total_size = 0
-        for file in self.files:
-            total_size += file[1]
-        for subfolder in self.subfolders:
-            folder_size, lowest_folder_size = subfolder.get_objective_part2(lowest_folder_size)
-            if folder_size > threshold and folder_size < lowest_folder_size:
-                lowest_folder_size = folder_size
-            total_size += folder_size
-        return total_size, lowest_folder_size
-
-with open('test.txt') as f:
+with open('input.txt') as f:
     #building the system
     lines = f.readlines()
     initial_folder = folder('/')
     position = initial_folder
     i = 1
     while i < len(lines):
-        print(i,"/",len(lines))
         line = lines[i]
         if line[2] == "c":
             if line[5:7] == "..":
@@ -76,13 +72,17 @@ with open('test.txt') as f:
                 else:
                     size, file = line.split(" ")
                     position.add_file(file[:-1], size)
+                    position.size += int(size)
+                    backward = position
+                    while backward.previous_folder != None:
+                        backward = backward.previous_folder
+                        backward.size += int(size)
                 i += 1
                 if i == len(lines):
                     break
                 line = lines[i]
     total_size, part1_answer = initial_folder.get_objective_part1()
     print("Part 1:", part1_answer)
-    threshold = 70000000 - total_size
-    print("Part 2:", initial_folder.get_objective_part2(threshold=threshold))
-
+    threshold = 30000000 - (70000000 - total_size)
+    print("Part 2:", min([t for t in initial_folder.get_all_subfolders_size() if t > threshold]))
 
