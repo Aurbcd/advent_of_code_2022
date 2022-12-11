@@ -1,7 +1,5 @@
 #Part 1
 import math
-
-
 class folder:
     def __init__(self, name):
         self.name = name
