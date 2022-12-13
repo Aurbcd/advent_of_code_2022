@@ -30,3 +30,5 @@ with open('input.txt') as f:
                 if tail not in list_positions:
                     list_positions.append(tail)
     print(len(list_positions)) #6189 too low
+
+
